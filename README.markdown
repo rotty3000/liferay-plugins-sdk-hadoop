@@ -1,7 +1,7 @@
-# Liferay Plugins
+# Liferay Hadoop example plugin
 
-The liferay-plugins repository is part of the Liferay Portal project. [Liferay
-Portal](http://www.liferay.com/community/liferay-projects/liferay-portal) is an
+The liferay-plugins-sdk-hadoop repository is an individual effort on the part of 
+Ray Augé. [Liferay Portal](http://) is an
 open source enterprise web platform for building business solutions that deliver
 immediate results and long-term value. Liferay Portal started out as a personal
 development project in 2000 and was open sourced in 2001.
@@ -16,26 +16,7 @@ plugins yourself, read below for details.
 
 ## Source Code
 
-Liferay's main source code resides in two repositories:
-[liferay-portal](https://github.com/liferay/liferay-portal) and
-[liferay-plugins](https://github.com/liferay/liferay-plugins). Liferay has
-additional repositories for the following:
 
-* [AlloyUI](https://github.com/liferay/alloy-ui)
-* [Documentation](https://github.com/liferay/liferay-docs)
-* [Git Tools](https://github.com/liferay/git-tools)
-* [Liferay Faces](https://github.com/liferay/liferay-faces)
-* [Liferay IDE](https://github.com/liferay/liferay-ide)
-* [Maven Support](https://github.com/liferay/liferay-maven-support)
-
-Liferay Portal *releases* are built from the liferay-portal repository and
-include select plugins from the liferay-plugins repository. You can build
-Liferay Portal, its plugins, and/or any of the other supporting technologies
-from their respective repositories.
-
-For more information on building liferay-portal, see the [README
-file](https://github.com/liferay/liferay-portal/blob/master/README.markdown) in
-the liferay-portal repository.
 
 ## Quick Start
 
