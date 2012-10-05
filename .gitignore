@@ -3,4 +3,6 @@
 # Package Files #
 *.jar
 *.war
-*.ear
+
+bin
+hooks/*/docroot/WEB-INF/classes
