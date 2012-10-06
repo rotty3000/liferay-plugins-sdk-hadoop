@@ -222,7 +222,7 @@ public class HDFSStore extends BaseStore {
 
 			FileStatus fileStatus = fileSystem.getFileStatus(fullPath);
 
-			return fileStatus.getBlockSize();
+			return fileStatus.getLen();
 		}
 		catch (IOException ioe) {
 			throw new SystemException(ioe);
