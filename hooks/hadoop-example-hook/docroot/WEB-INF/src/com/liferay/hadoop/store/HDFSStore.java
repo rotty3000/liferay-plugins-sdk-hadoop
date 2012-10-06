@@ -97,6 +97,10 @@ public class HDFSStore extends BaseStore {
 
 		try {
 			fileSystem.delete(fullPath, true);
+
+			Path parentPath = fullPath.getParent();
+
+			deleteEmptyAncestors(parentPath);
 		}
 		catch (IOException ioe) {
 			throw new SystemException(ioe);
@@ -108,7 +112,7 @@ public class HDFSStore extends BaseStore {
 			long companyId, long repositoryId, String fileName)
 		throws PortalException, SystemException {
 
-		deleteFile(companyId, repositoryId, fileName, StringPool.BLANK);
+		deleteFile(companyId, repositoryId, fileName, VERSION_DEFAULT);
 	}
 
 	@Override
@@ -123,10 +127,16 @@ public class HDFSStore extends BaseStore {
 		FileSystem fileSystem = HadoopManager.getFileSystem();
 
 		try {
-			fileSystem.delete(fullPath, true);
+			if (fileSystem.exists(fullPath)) {
+				fileSystem.delete(fullPath, true);
+			}
+
+			Path parentPath = fullPath.getParent();
+
+			deleteEmptyAncestors(companyId, repositoryId, parentPath);
 		}
-		catch (IOException ioe) {
-			throw new SystemException(ioe);
+		catch (Exception e) {
+			throw new SystemException(e);
 		}
 	}
 
@@ -365,6 +375,35 @@ public class HDFSStore extends BaseStore {
 		}
 		finally {
 			StreamUtil.cleanUp(outputStream);
+		}
+	}
+
+	protected void deleteEmptyAncestors(Path path) throws SystemException {
+		deleteEmptyAncestors(-1, -1, path);
+	}
+
+	protected void deleteEmptyAncestors(
+		long companyId, long repositoryId, Path path) throws SystemException {
+
+		FileSystem fileSystem = HadoopManager.getFileSystem();
+
+		try {
+			FileStatus[] listStatus = fileSystem.listStatus(path);
+
+			if ((listStatus == null) || (listStatus.length > 0)) {
+				return;
+			}
+
+			Path parentPath = path.getParent();
+
+			if (fileSystem.delete(path, true) &&
+				fileSystem.exists(parentPath)) {
+
+				deleteEmptyAncestors(companyId, repositoryId, parentPath);
+			}
+		}
+		catch (IOException ioe) {
+			throw new SystemException(ioe);
 		}
 	}
 
