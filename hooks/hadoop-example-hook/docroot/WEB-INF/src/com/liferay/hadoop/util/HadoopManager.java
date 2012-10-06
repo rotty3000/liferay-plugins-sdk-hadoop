@@ -35,12 +35,18 @@ public class HadoopManager {
 	}
 
 	private FileSystem _getFileSystem() throws SystemException {
+		if (_fileSystem != null) {
+			return _fileSystem;
+		}
+
 		try {
-			return FileSystem.get(_configuration);
+			_fileSystem = FileSystem.get(_configuration);
 		}
 		catch (IOException ioe) {
 			throw new SystemException(ioe);
 		}
+
+		return _fileSystem;
 	}
 
 	private HadoopManager() {
@@ -59,5 +65,6 @@ public class HadoopManager {
 	private static HadoopManager _instance = new HadoopManager();
 
 	private Configuration _configuration;
+	private FileSystem _fileSystem;
 
 }
