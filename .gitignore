@@ -5,3 +5,5 @@
 
 bin
 hooks/*/docroot/WEB-INF/classes
+
+hooks/hadoop-example-hook/docroot/WEB-INF/lib/hadoop-job.jar
