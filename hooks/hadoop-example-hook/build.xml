@@ -3,4 +3,30 @@
 
 <project name="hadoop-example-hook" basedir="." default="deploy">
 	<import file="../build-common-hook.xml" />
+
+	<target name="compile">
+		<mkdir dir="docroot/WEB-INF/job/classes" />
+
+		<path id="plugin-lib.classpath">
+			<fileset dir="docroot/WEB-INF/lib" includes="*.jar" />
+			<pathelement location="docroot/WEB-INF/classes" />
+		</path>
+
+		<antcall target="compile-java">
+			<param name="javac.classpathref" value="plugin.classpath" />
+			<param name="javac.destdir" value="docroot/WEB-INF/job/classes" />
+			<param name="javac.srcdir" value="docroot/WEB-INF/job/src" />
+
+			<reference refid="plugin-lib.classpath" torefid="plugin-lib.classpath" />
+		</antcall>
+
+		<zip
+			basedir="docroot/WEB-INF/job/classes"
+			destfile="docroot/WEB-INF/lib/hadoop-job.jar"
+		/>
+
+		<delete dir="docroot/WEB-INF/job/classes" />
+
+		<antcall target="build-common-plugin.compile" />
+	</target>
 </project>

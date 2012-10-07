@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="hooks/hadoop-example-hook/docroot/WEB-INF/src"/>
+	<classpathentry kind="src" path="hooks/hadoop-example-hook/docroot/WEB-INF/job/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TRUNK-GLOBAL"/>
 	<classpathentry kind="lib" path="lib/activation.jar"/>
@@ -18,5 +19,6 @@
 			<attribute name="javadoc_location" value="file:/home/hduser/hadoop/docs/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

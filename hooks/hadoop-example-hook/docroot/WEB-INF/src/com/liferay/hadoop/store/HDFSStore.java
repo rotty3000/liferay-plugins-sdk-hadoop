@@ -15,12 +15,10 @@
 package com.liferay.hadoop.store;
 
 import com.liferay.hadoop.util.HadoopManager;
+import com.liferay.hadoop.util.StoreEvent;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.StreamUtil;
-import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.documentlibrary.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.store.BaseStore;
 
@@ -45,11 +43,13 @@ public class HDFSStore extends BaseStore {
 	public void addDirectory(long companyId, long repositoryId, String dirName)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullDirPath(companyId, repositoryId, dirName);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
+		Path fullPath = HadoopManager.getFullDirPath(
+			companyId, repositoryId, dirName);
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			fileSystem.mkdirs(fullPath, FsPermission.getDefault());
 		}
 		catch (IOException ioe) {
@@ -62,14 +62,15 @@ public class HDFSStore extends BaseStore {
 			long companyId, long repositoryId, String fileName, InputStream is)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, VERSION_DEFAULT);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
 
 		FSDataOutputStream outputStream = null;
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			outputStream = fileSystem.create(fullPath);
 
 			StreamUtil.transfer(is, outputStream, false);
@@ -91,11 +92,13 @@ public class HDFSStore extends BaseStore {
 			long companyId, long repositoryId, String dirName)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullDirPath(companyId, repositoryId, dirName);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
+		Path fullPath = HadoopManager.getFullDirPath(
+			companyId, repositoryId, dirName);
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			fileSystem.delete(fullPath, true);
 
 			Path parentPath = fullPath.getParent();
@@ -121,12 +124,13 @@ public class HDFSStore extends BaseStore {
 			String versionLabel)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, versionLabel);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			if (fileSystem.exists(fullPath)) {
 				fileSystem.delete(fullPath, true);
 			}
@@ -135,8 +139,8 @@ public class HDFSStore extends BaseStore {
 
 			deleteEmptyAncestors(companyId, repositoryId, parentPath);
 		}
-		catch (Exception e) {
-			throw new SystemException(e);
+		catch (IOException ioe) {
+			throw new SystemException(ioe);
 		}
 	}
 
@@ -146,12 +150,13 @@ public class HDFSStore extends BaseStore {
 			String versionLabel)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, versionLabel);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			if (!fileSystem.exists(fullPath)) {
 				throw new PortalException(
 					"File " + fullPath.toUri().toString() + " does not exist");
@@ -175,11 +180,13 @@ public class HDFSStore extends BaseStore {
 			long companyId, long repositoryId, String dirName)
 		throws SystemException {
 
-		Path fullPath = getFullDirPath(companyId, repositoryId, dirName);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
+		Path fullPath = HadoopManager.getFullDirPath(
+			companyId, repositoryId, dirName);
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			FileStatus[] listStatus = fileSystem.listStatus(fullPath);
 
 			if ((listStatus == null) || (listStatus.length < 1)) {
@@ -190,13 +197,6 @@ public class HDFSStore extends BaseStore {
 				listStatus.length);
 
 			for (FileStatus fileStatus : listStatus) {
-
-				// TODO omit folders?
-
-				//if (fileStatus.isDir()) {
-				//	continue;
-				//}
-
 				String fileStatusPathString = fileStatus.getPath().toString();
 
 				int pos = fileStatusPathString.indexOf(dirName);
@@ -219,12 +219,13 @@ public class HDFSStore extends BaseStore {
 	public long getFileSize(long companyId, long repositoryId, String fileName)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, VERSION_DEFAULT);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			if (!fileSystem.exists(fullPath)) {
 				throw new PortalException(
 					"File " + fullPath.toUri().toString() + " does not exist");
@@ -244,11 +245,13 @@ public class HDFSStore extends BaseStore {
 			long companyId, long repositoryId, String dirName)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullDirPath(companyId, repositoryId, dirName);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
+		Path fullPath = HadoopManager.getFullDirPath(
+			companyId, repositoryId, dirName);
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			return fileSystem.exists(fullPath);
 		}
 		catch (IOException ioe) {
@@ -262,12 +265,13 @@ public class HDFSStore extends BaseStore {
 			String versionLabel)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, versionLabel);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			return fileSystem.exists(fullPath);
 		}
 		catch (IOException ioe) {
@@ -285,14 +289,15 @@ public class HDFSStore extends BaseStore {
 			String fileName)
 		throws PortalException, SystemException {
 
-		Path sourcePath = getFullVersionFilePath(
+		Path sourcePath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, VERSION_DEFAULT);
-		Path targetPath = getFullVersionFilePath(
+		Path targetPath = HadoopManager.getFullVersionFilePath(
 			companyId, newRepositoryId, fileName, VERSION_DEFAULT);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, sourcePath));
+
 			if (fileSystem.exists(targetPath)) {
 				throw new DuplicateFileException(fileName);
 			}
@@ -321,14 +326,15 @@ public class HDFSStore extends BaseStore {
 			String newFileName)
 		throws PortalException, SystemException {
 
-		Path sourcePath = getFullVersionFilePath(
+		Path sourcePath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, VERSION_DEFAULT);
-		Path targetPath = getFullVersionFilePath(
+		Path targetPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, newFileName, VERSION_DEFAULT);
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, sourcePath));
+
 			if (fileSystem.exists(targetPath)) {
 				throw new DuplicateFileException(fileName);
 			}
@@ -358,14 +364,15 @@ public class HDFSStore extends BaseStore {
 			String versionLabel, InputStream inputStream)
 		throws PortalException, SystemException {
 
-		Path fullPath = getFullVersionFilePath(
+		Path fullPath = HadoopManager.getFullVersionFilePath(
 			companyId, repositoryId, fileName, versionLabel);
-
-		FileSystem fileSystem = HadoopManager.getFileSystem();
 
 		FSDataOutputStream outputStream = null;
 
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, fullPath));
+
 			outputStream = fileSystem.create(fullPath);
 
 			StreamUtil.transfer(inputStream, outputStream, false);
@@ -385,9 +392,10 @@ public class HDFSStore extends BaseStore {
 	protected void deleteEmptyAncestors(
 		long companyId, long repositoryId, Path path) throws SystemException {
 
-		FileSystem fileSystem = HadoopManager.getFileSystem();
-
 		try {
+			FileSystem fileSystem = HadoopManager.getFileSystem(
+				new StoreEvent(companyId, repositoryId, path));
+
 			FileStatus[] listStatus = fileSystem.listStatus(path);
 
 			if ((listStatus == null) || (listStatus.length > 0)) {
@@ -405,55 +413,6 @@ public class HDFSStore extends BaseStore {
 		catch (IOException ioe) {
 			throw new SystemException(ioe);
 		}
-	}
-
-	private String getFullDirName(
-		long companyId, long repositoryId, String dirName) {
-
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(StringPool.SLASH);
-		sb.append(companyId);
-		sb.append(StringPool.SLASH);
-		sb.append(repositoryId);
-
-		if (Validator.isNotNull(dirName)) {
-			sb.append(StringPool.SLASH);
-			sb.append(dirName);
-		}
-
-		return sb.toString();
-	}
-
-	private Path getFullDirPath(
-		long companyId, long repositoryId, String dirName) {
-
-		return new Path(getFullDirName(companyId, repositoryId, dirName));
-	}
-
-	private String getFullVersionFileName(
-		long companyId, long repositoryId, String fileName, String version) {
-
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(getFullDirName(companyId, repositoryId, fileName));
-		sb.append(StringPool.SLASH);
-
-		if (Validator.isNull(version)) {
-			sb.append(VERSION_DEFAULT);
-		}
-		else {
-			sb.append(version);
-		}
-
-		return sb.toString();
-	}
-
-	private Path getFullVersionFilePath(
-		long companyId, long repositoryId, String fileName, String version) {
-
-		return new Path(
-			getFullVersionFileName(companyId, repositoryId, fileName, version));
 	}
 
 }
