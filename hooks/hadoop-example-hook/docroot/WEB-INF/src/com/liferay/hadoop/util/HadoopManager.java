@@ -134,8 +134,8 @@ public class HadoopManager {
 		JobClient jobClient = _getJobClient();
 
 		Path inputPath = storeEvent.getRootPath().suffix("/*");
-		Path outputPath = storeEvent.getRootPath().getParent().suffix(
-			"/wc-results");
+		Path outputPath = new Path(
+			"/wordcount", storeEvent.getRootPath().suffix("/results"));
 
 		try {
 			if (_runningJob == null) {
@@ -159,7 +159,7 @@ public class HadoopManager {
 				if (_fileSystem.exists(outputPath)) {
 					_fileSystem.rename(
 						outputPath, outputPath.getParent().suffix(
-							"/.wc-results-" + System.currentTimeMillis()));
+							"/.results-" + System.currentTimeMillis()));
 				}
 
 				_jobConf = new JobConf(_sharedJobConf);
@@ -193,7 +193,7 @@ public class HadoopManager {
 				if (_fileSystem.exists(outputPath)) {
 					_fileSystem.rename(
 						outputPath, outputPath.getParent().suffix(
-							"/.wc-results-" + System.currentTimeMillis()));
+							"/.results-" + System.currentTimeMillis()));
 				}
 
 				_runningJob = jobClient.submitJob(_jobConf);
@@ -247,7 +247,7 @@ public class HadoopManager {
 
 		_sharedJobConf = new JobConf(_configuration);
 
-		_jobPath = new Path("/10152/wordcount/jars/hadoop-job.jar");
+		_jobPath = new Path("/wordcount/jars/hadoop-job.jar");
 	}
 
 	private static HadoopManager _instance = new HadoopManager();
