@@ -15,7 +15,6 @@
 package com.liferay.hadoop.store;
 
 import com.liferay.hadoop.util.HadoopManager;
-import com.liferay.hadoop.util.StoreEvent;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.StreamUtil;
@@ -47,8 +46,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, dirName);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			fileSystem.mkdirs(fullPath, FsPermission.getDefault());
 		}
@@ -68,8 +66,7 @@ public class HDFSStore extends BaseStore {
 		FSDataOutputStream outputStream = null;
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			outputStream = fileSystem.create(fullPath);
 
@@ -96,8 +93,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, dirName);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			fileSystem.delete(fullPath, true);
 
@@ -128,8 +124,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, fileName, versionLabel);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			if (fileSystem.exists(fullPath)) {
 				fileSystem.delete(fullPath, true);
@@ -154,8 +149,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, fileName, versionLabel);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			if (!fileSystem.exists(fullPath)) {
 				throw new PortalException(
@@ -184,8 +178,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, dirName);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			FileStatus[] listStatus = fileSystem.listStatus(fullPath);
 
@@ -223,8 +216,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, fileName, VERSION_DEFAULT);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			if (!fileSystem.exists(fullPath)) {
 				throw new PortalException(
@@ -249,8 +241,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, dirName);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			return fileSystem.exists(fullPath);
 		}
@@ -269,8 +260,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, fileName, versionLabel);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			return fileSystem.exists(fullPath);
 		}
@@ -295,8 +285,7 @@ public class HDFSStore extends BaseStore {
 			companyId, newRepositoryId, fileName, VERSION_DEFAULT);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, sourcePath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			if (fileSystem.exists(targetPath)) {
 				throw new DuplicateFileException(fileName);
@@ -332,8 +321,7 @@ public class HDFSStore extends BaseStore {
 			companyId, repositoryId, newFileName, VERSION_DEFAULT);
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, sourcePath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			if (fileSystem.exists(targetPath)) {
 				throw new DuplicateFileException(fileName);
@@ -370,8 +358,7 @@ public class HDFSStore extends BaseStore {
 		FSDataOutputStream outputStream = null;
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, fullPath));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			outputStream = fileSystem.create(fullPath);
 
@@ -393,8 +380,7 @@ public class HDFSStore extends BaseStore {
 		long companyId, long repositoryId, Path path) throws SystemException {
 
 		try {
-			FileSystem fileSystem = HadoopManager.getFileSystem(
-				new StoreEvent(companyId, repositoryId, path));
+			FileSystem fileSystem = HadoopManager.getFileSystem();
 
 			FileStatus[] listStatus = fileSystem.listStatus(path);
 

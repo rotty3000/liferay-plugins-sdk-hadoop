@@ -3,4 +3,12 @@
 
 <hook>
 	<portal-properties>portal.properties</portal-properties>
+	<indexer-post-processor>
+		<indexer-class-name>com.liferay.portlet.documentlibrary.util.DLIndexer</indexer-class-name>
+		<indexer-post-processor-impl>com.liferay.hadoop.search.HadoopDLIndexerPostProcessor</indexer-post-processor-impl>
+	</indexer-post-processor>
+	<struts-action>
+		<struts-action-path>/portal/hadoop/job</struts-action-path>
+		<struts-action-impl>com.liferay.hadoop.action.HadoopJob</struts-action-impl>
+	</struts-action>
 </hook>

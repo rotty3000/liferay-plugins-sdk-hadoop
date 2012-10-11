@@ -25,9 +25,6 @@ import com.liferay.portlet.documentlibrary.store.Store;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import javax.servlet.ServletContext;
 
 import org.apache.hadoop.conf.Configuration;
@@ -51,10 +48,14 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  */
 public class HadoopManager {
 
-	public static FileSystem getFileSystem(StoreEvent storeEvent)
+	public static JobConf createNewJobConf() {
+		return new JobConf(_sharedJobConf);
+	}
+
+	public static FileSystem getFileSystem()
 		throws IOException {
 
-		return getIstance()._getFileSystem(storeEvent);
+		return getIstance()._getFileSystem();
 	}
 
 	public static String getFullDirName(
@@ -122,28 +123,28 @@ public class HadoopManager {
 		_servletContext = servletContext;
 	}
 
-	private void refreshJobState(StoreEvent storeEvent) throws IOException {
-		if ((_fileSystem == null) || (_servletContext == null) ||
-			(storeEvent.getRepositoryId() == 0)) {
+	public static void runJob(StoreEvent storeEvent) throws IOException {
+		FileSystem fileSystem = getFileSystem();
 
+		if (_servletContext == null) {
 			return;
 		}
 
-		_lock.lock();
+		JobClient jobClient = getJobClient();
 
-		JobClient jobClient = _getJobClient();
-
-		Path inputPath = storeEvent.getRootPath().suffix("/*");
+		Path inputPath = new Path(
+			"/index".concat(storeEvent.getRootPath().toString()).concat("/*"));
 		Path outputPath = new Path(
-			"/wordcount", storeEvent.getRootPath().suffix("/results"));
+			"/wordcount".concat(
+				storeEvent.getRootPath().toString()).concat("/results"));
 
 		try {
 			if (_runningJob == null) {
-				if (!_fileSystem.exists(_jobPath)) {
+				if (!fileSystem.exists(_jobPath)) {
 					FSDataOutputStream outputStream = null;
 
 					try {
-						outputStream = _fileSystem.create(_jobPath);
+						outputStream = fileSystem.create(_jobPath);
 
 						InputStream inputStream =
 							_servletContext.getResourceAsStream(
@@ -156,8 +157,8 @@ public class HadoopManager {
 					}
 				}
 
-				if (_fileSystem.exists(outputPath)) {
-					_fileSystem.rename(
+				if (fileSystem.exists(outputPath)) {
+					fileSystem.rename(
 						outputPath, outputPath.getParent().suffix(
 							"/.results-" + System.currentTimeMillis()));
 				}
@@ -175,7 +176,7 @@ public class HadoopManager {
 				_jobConf.setOutputFormat(TextOutputFormat.class);
 
 				DistributedCache.addArchiveToClassPath(
-					_jobPath, _jobConf, _fileSystem);
+					_jobPath, _jobConf, fileSystem);
 
 				FileInputFormat.setInputPaths(_jobConf, inputPath);
 				FileOutputFormat.setOutputPath(_jobConf, outputPath);
@@ -190,8 +191,8 @@ public class HadoopManager {
 
 				System.out.println("Re-issuing the word count job.");
 
-				if (_fileSystem.exists(outputPath)) {
-					_fileSystem.rename(
+				if (fileSystem.exists(outputPath)) {
+					fileSystem.rename(
 						outputPath, outputPath.getParent().suffix(
 							"/.results-" + System.currentTimeMillis()));
 				}
@@ -202,15 +203,10 @@ public class HadoopManager {
 		catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
-		finally {
-			_lock.unlock();
-		}
 	}
 
-	private FileSystem _getFileSystem(StoreEvent storeEvent) throws IOException {
+	private FileSystem _getFileSystem() throws IOException {
 		if (_fileSystem != null) {
-			refreshJobState(storeEvent);
-
 			return _fileSystem;
 		}
 
@@ -258,10 +254,9 @@ public class HadoopManager {
 	private FileSystem _fileSystem;
 
 	private JobClient _jobClient;
-	private JobConf _jobConf;
-	private Path _jobPath;
-	private final Lock _lock = new ReentrantLock();
-	private RunningJob _runningJob;
-	private JobConf _sharedJobConf;
+	private static JobConf _jobConf;
+	private static Path _jobPath;
+	private static RunningJob _runningJob;
+	private static JobConf _sharedJobConf;
 
 }

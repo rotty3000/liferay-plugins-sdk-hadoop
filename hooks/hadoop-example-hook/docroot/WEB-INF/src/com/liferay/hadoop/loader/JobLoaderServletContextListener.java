@@ -30,6 +30,7 @@ public class JobLoaderServletContextListener implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
+		HadoopManager.setServletContext(null);
 	}
 
 }
